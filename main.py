@@ -3,9 +3,8 @@
 import json
 import logging
 
-from Cuisinier import Recipe
-from Cuisinier import ClassifiedRecipe
-from Cuisinier import Cuisinier
+from Cuisinier import Recipe, ClassifiedRecipe, Cuisinier
+from SVM import SVM
 
 LOGGING_LEVEL = logging.INFO
 TRAINING_FILE = "resources/train.json"
@@ -33,10 +32,20 @@ def getRecipes(file):
 
 def selfTest():
     # Read and parse JSON data
-    recipes = getClassifiedRecipes(TRAINING_FILE)
-    cuisinier = Cuisinier()
-    cuisinier.addRecipes(recipes)
+    trainingRecipes = getClassifiedRecipes(TRAINING_FILE)
+    testingRecipes = getClassifiedRecipes(TEST_FILE)
+    cuisinier = SVM()
 
+    cuisinier.addRecipes(trainingRecipes)
+    cuisinier.addTestRecipes(testingRecipes)
+    print(cuisinier.cuisineCount)
+    success = 0
+
+    print(cuisinier.ingredientCount.keys().__len__());
+    print(cuisinier.cuisineMatrix.keys().__len__());
+    cuisinier.constructMatrix()
+    cuisinier.constructModel()
+'''
     success = 0
     for recipe in recipes:
         result = cuisinier.classifyRecipe(Recipe(recipe.id,
@@ -46,7 +55,7 @@ def selfTest():
         print(str(result.id) + ":\t" + result.cuisine + " / " + recipe.cuisine)
 
     print("Self-test: " + str(success) + "/" + str(len(recipes)))
-
+'''
 
 def main():
     selfTest()
