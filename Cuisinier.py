@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 
 Recipe = namedtuple("ClassifiedRecipe", "id, ingredients")
@@ -13,19 +14,23 @@ Uses ingredients to categorize the cuisine of a recipe.
 
 
 class Cuisinier:
+    __metaclass__ = ABCMeta
+
     def __init__(self):
         self.recipes = {}  # <id, Recipe>
         self.cuisineCount = {}  # <cuisine, frequency>
         self.cuisineMatrix = {}  # <cuisine, <ingredient, frequency>>
         self.ingredientCount = {}  # <ingredient, frequency>
         self.ingredientMatrix = {}  # <ingredient, <cuisine, frequency>>
+        self.preprocessed = False
+        self.recipesTest = {}  # <id, Recipe>
 
     """
     Adds a ClassifiedRecipe to the knowledge base.
     @param  recipe  ClassifiedRecipe Recipe to be added
     @return         True if successful, false otherwise
     """
-    def addRecipe(self, recipe, ClassifiedRecipe):
+    def addRecipe(self, recipe):
         if not isinstance(recipe, ClassifiedRecipe):
             raise TypeError("Cuisinier.addRecipe() takes a ClassifiedRecipe")
 
@@ -63,6 +68,7 @@ class Cuisinier:
 
             # Return true if successful
             logging.info("Add recipe " + str(recipe.id) + ":\tSUCCESS")
+            self.preprocessed = False
             return True
 
         logging.info("Add recipe " + str(recipe.id) + ":\tFAIL")
@@ -80,6 +86,29 @@ class Cuisinier:
 
         logging.info(str(success) + "/" + str(len(recipes)) + " recipes added")
 
+    def addTestRecipes(self, recipesTest):
+        for recipe in recipesTest:
+            self.recipesTest[recipe.id] = recipe
+        logging.info(" Test recipes added successfully")
+
+    """
+    Run any preprocessing necessary before classification after any change to
+    the knowledgebase.
+    """
+    @abstractmethod
+    def preprocess(self):
+        self.preprocessed = True
+
+    """
+    Classifies a given Recipe (called by classifyRecipe() after preprocessing).
+    @param  recipe  Recipe to be classified
+    @return         ClassfiedRecipe
+    """
+    @abstractmethod
+    def classify(self, recipe):
+        # TODO Perform classification
+        return ClassifiedRecipe(recipe.id, "unknown", recipe.ingredients)
+
     """
     Classifies a given Recipe.
     @param  recipe  Recipe to be classified
@@ -89,8 +118,11 @@ class Cuisinier:
         if not isinstance(recipe, Recipe):
             raise TypeError("Cuisinier.classifyRecipe() takes a Recipe")
 
-        # TODO Perform classification
-        return ClassifiedRecipe(recipe.id, "unknown", recipe.ingredients)
+        # Run preprocessing if necessary
+        if not self.preprocessed:
+            self.preprocess()
+
+        return self.classify(recipe)
 
     """
     Classifies a list of Recipes.
