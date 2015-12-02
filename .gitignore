@@ -1,5 +1,6 @@
 # Project specific
 log.txt
+*.csv
 
 # Spyder
 .spyderproject

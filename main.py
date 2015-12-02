@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import csv
 import json
 import logging
 
@@ -30,6 +31,18 @@ def getRecipes(file):
     return [Recipe(recipe["id"], recipe["ingredients"]) for recipe in recipes]
 
 
+# Writes a list of classified recipes to a given file in CSV format
+def writeRecipesCSV(file, recipes):
+    print("Writing recipes to \"" + file + "\"")
+    with open(file, "w", newline="") as fileToWrite:
+        csv_writer = csv.writer(fileToWrite, delimiter=",", quotechar="|",
+                                quoting=csv.QUOTE_MINIMAL)
+        csv_writer.writerow(["id", "cuisine"])
+
+        for recipe in recipes:
+            csv_writer.writerow([recipe.id, recipe.cuisine])
+
+
 # Tests a Cuisinier against its own training data
 def selfTest(cuisinier):
     # Read and parse JSON data
@@ -51,5 +64,6 @@ def selfTest(cuisinier):
 def main():
     # Calculate initial accuracy
     selfTest(CuisinierTFIDF())
+
 
 main()
