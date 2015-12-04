@@ -29,7 +29,8 @@ def getRecipes(file):
     return [Recipe(recipe["id"], recipe["ingredients"]) for recipe in recipes]
 
 
-def selfTest():
+# Tests a Cuisinier against its own training data
+def selfTest(cuisinier):
     # Read and parse JSON data
     recipes = getClassifiedRecipes(TRAINING_FILE)
     cuisinier = Cuisinier()
@@ -41,9 +42,10 @@ def selfTest():
                                                  recipe.ingredients))
         if result.cuisine == recipe.cuisine:
             success += 1
-        print(str(result.id) + ":\t" + result.cuisine + " / " + recipe.cuisine)
 
-    print("Self-test: " + str(success) + "/" + str(len(recipes)))
+    print(cuisinier.getAlgorithmType() + " self-test accuracy: " +
+          str(success) + "/" + str(len(recipes)) +
+          " (" + "{0:.2f}".format(success/len(recipes) * 100) + "%)")
 
 
 def main():
