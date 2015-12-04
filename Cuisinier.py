@@ -25,6 +25,14 @@ class Cuisinier:
         self.preprocessed = False
 
     """
+    Returns the algorithm identifier.
+    @return         Algorithm identifier
+    """
+    @abstractmethod
+    def getAlgorithmType(self):
+        return "N/A"
+
+    """
     Adds a ClassifiedRecipe to the knowledge base.
     @param  recipe  ClassifiedRecipe Recipe to be added
     @return         True if successful, false otherwise
