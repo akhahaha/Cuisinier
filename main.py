@@ -61,9 +61,25 @@ def selfTest(cuisinier):
           " (" + "{0:.2f}".format(success/len(recipes) * 100) + "%)")
 
 
-def main():
-    # Calculate initial accuracy
-    selfTest(CuisinierTFIDF())
+# Run test data and output the results
+def generateSubmission(cuisinier):
+    # Read and parse JSON data
+    trainingRecipes = getClassifiedRecipes(TRAINING_FILE)
+    testRecipes = getRecipes(TEST_FILE)
 
+    cuisinierType = cuisinier.getAlgorithmType()
+    cuisinier.addRecipes(trainingRecipes)
+    print("Classifying " + str(len(testRecipes)) + " recipes with " +
+          cuisinierType)
+    writeRecipesCSV("results" + cuisinierType + ".csv",
+                    cuisinier.classifyRecipes(testRecipes))
+    print(cuisinierType + " classification complete")
+
+
+def main():
+    cuisinier = CuisinierTFIDF()
+    # Calculate initial accuracy
+    selfTest(cuisinier)
+    generateSubmission(cuisinier)
 
 main()
