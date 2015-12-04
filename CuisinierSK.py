@@ -30,15 +30,18 @@ class CuisinierSK(Cuisinier):
     def getCLF(self):
         return self.clf
 
+    # One-hot encode recipe ingredients
+    def encodeIngredients(self, ingredients):
+        return [1 if ingredient in ingredients else 0 for ingredient
+                in self.ingredientMatrix.keys()]
+
     def fitSVC(self):
-        # One-hot encode recipe samples
-        samples = [[1 if ingredient in recipe.ingredients else 0 for ingredient
-                    in self.ingredientMatrix.keys()]
-                   for recipe in self.recipes.values()]
+        samples = [self.encodeIngredients(recipe.ingredients) for recipe in
+                   self.recipes.values()]
         labels = [recipe.cuisine for recipe in self.recipes.values()]
         self.clf.fit(samples, labels)
 
     def classify(self, recipe):
-        return ClassifiedRecipe(recipe.id,
-                                self.clf.predict([recipe.ingredients]),
+        return ClassifiedRecipe(recipe.id, self.clf.predict([
+                                self.encodeIngredients(recipe.ingredients)]),
                                 recipe.ingreidents)
