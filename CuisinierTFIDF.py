@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import math
+from collections import defaultdict
 
 from Cuisinier import ClassifiedRecipe, Cuisinier
 
@@ -52,16 +53,33 @@ class CuisinierTFIDF(Cuisinier):
     @return         ClassifiedRecipe
     """
     def classify(self, recipe):
-        cuisineScores = {}
+        cuisineScores = {}  # <cuisine, [scores]>
+        cuisineSubscores =  defaultdict(list)  # <cuisine, subscores[]>
         for ingredient in recipe.ingredients:
             if ingredient in self.tfidfScores:
                 for cuisine, score in self.tfidfScores[ingredient].items():
                     if cuisine not in cuisineScores:
                         cuisineScores[cuisine] = 0
                     cuisineScores[cuisine] += score
+                    cuisineSubscores[cuisine].append(score)
 
         # Select highest scoring cuisine
         bestCuisine = max(cuisineScores.keys(),
                           key=(lambda key: cuisineScores[key]))
+        bestScore = cuisineScores.pop(bestCuisine, None)
+        contenderScore = bestScore
+
+        # Check for ties
+        while bestScore == contenderScore and len(cuisineScores) > 0:
+            contender = max(cuisineScores.keys(),
+                            key=(lambda key: cuisineScores[key]))
+            contenderScore = cuisineScores.pop(contender, None)
+            if bestScore == contenderScore:
+                # Find cuisine with highest scoring ingredient from recipe
+                bestHighSubscore = max(cuisineSubscores[bestCuisine])
+                contenderHighSubscore = max(cuisineSubscores[contender])
+                if contenderHighSubscore > bestHighSubscore:
+                    bestCuisine = contender
+                    bestScore = contenderScore
 
         return ClassifiedRecipe(recipe.id, bestCuisine, recipe.ingredients)
