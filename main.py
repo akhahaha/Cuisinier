@@ -76,6 +76,25 @@ def generateSubmission(cuisinier):
     print(cuisinierType + " classification complete")
 
 
+def test():
+    recipesToClassify = getRecipes(TEST_FILE)
+    recipes = getClassifiedRecipes(TRAINING_FILE)
+    cuisinier = Cuisinier()
+    cuisinier.addRecipes(recipes)
+
+    with open('submissionData.csv', 'wb') as fileToWrite:
+        csv_writer = csv.writer(fileToWrite)
+        csv_writer = csv.writer(fileToWrite, delimiter=',',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        csv_writer.writerow(["id","cuisine"])
+
+        success = 0
+        for recipe in recipesToClassify:
+            result = cuisinier.classifyRecipe(Recipe(recipe.id,
+                                                     recipe.ingredients))
+            csv_writer.writerow([recipe.id, result.cuisine])
+
+
 def main():
     cuisinier = CuisinierTFIDF()
     # Calculate initial accuracy
